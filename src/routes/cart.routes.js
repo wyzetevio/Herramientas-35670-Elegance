@@ -9,6 +9,7 @@ import {
 
 const router = express.Router();
 
+// Endpoints 
 router.get('/:userId', getCart);
 router.post('/', addCartItem);
 router.put('/', updateCartItem);
