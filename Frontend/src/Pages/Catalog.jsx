@@ -27,7 +27,7 @@ function Catalog() {
         const value = e.target.value.toLowerCase();
         setFilter(value);
         setFiltered(
-            products.filter((p) => p.name.toLowerCase().includes(value))
+            products.filter((p) => p.nombre.toLowerCase().includes(value))
         );
     };
 
@@ -50,12 +50,10 @@ function Catalog() {
                     <p className="mt-2">Cargando productos...</p>
                 </div>
             ) : (
-
-                <div className="g-4">
+                <Row xs={1} sm={2} md={3} lg={4} className="g-4">
                     {filtered.length > 0 ? (
                         filtered.map((product) => (
-
-                            <Col>
+                            <Col key={product.id}>
                                 <ProductCard product={product} />
                             </Col>
                         ))
@@ -64,7 +62,7 @@ function Catalog() {
                             No se encontraron productos.
                         </p>
                     )}
-                </div>
+                </Row>
             )}
         </Container>
     );
