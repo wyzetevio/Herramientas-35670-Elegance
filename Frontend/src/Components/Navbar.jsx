@@ -21,6 +21,7 @@ function NavigationBar() {
                         <Nav.Link as={Link} to="/">Inicio</Nav.Link>
                         <Nav.Link as={Link} to="/catalog">Catálogo</Nav.Link>
                         <Nav.Link as={Link} to="/contact">Contacto</Nav.Link>
+                        <Nav.Link as={Link} to="/claims">Libro de Reclamaciones</Nav.Link>
                     </Nav>
 
                     {/* Carrito (icono) a la derecha */}
