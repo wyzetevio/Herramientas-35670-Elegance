@@ -34,4 +34,5 @@ export const removeFromCart = (user_id, product_id) =>
 
 export const clearCart = (user_id) => API.delete(`/cart/clear/${user_id}`);
 
+export const createClaim = (data) => API.post("/claims", data);
 export default API;
