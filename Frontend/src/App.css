@@ -1,0 +1,15 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.App-header {
+  text-align: center;
+  padding: 4rem 0;
+  background: linear-gradient(90deg, #007bff, #6610f2);
+  color: white;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
