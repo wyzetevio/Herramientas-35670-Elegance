@@ -5,10 +5,11 @@ import { getProducts } from "../Services/Api";
 import axios from "axios";
 
 function Catalog() {
-    const [products, setProducts] = useState([]);
-    const [filtered, setFiltered] = useState([]);
-    const [filter, setFilter] = useState("");
-    const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
     getProducts()
@@ -23,49 +24,46 @@ function Catalog() {
         });
 }, []);
 
-    const handleFilter = (e) => {
-        const value = e.target.value.toLowerCase();
-        setFilter(value);
-        setFiltered(
-            products.filter((p) => p.nombre.toLowerCase().includes(value))
-        );
-    };
 
-    return (
-        <Container className="my-5">
-            <h2 className="mb-4 text-center">Catálogo de Productos</h2>
+  const handleFilter = (e) => {
+    const value = e.target.value.toLowerCase();
+    setFilter(value);
+    setFiltered(products.filter((p) => p.nombre.toLowerCase().includes(value)));
+  };
 
-            <Form className="mb-4">
-                <Form.Control
-                    type="text"
-                    placeholder="Buscar por nombre..."
-                    value={filter}
-                    onChange={handleFilter}
-                />
-            </Form>
+  return (
+    <Container className="my-5">
+      <h2 className="mb-4 text-center">Catálogo de Productos</h2>
 
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Cargando productos...</p>
-                </div>
-            ) : (
-                <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-                    {filtered.length > 0 ? (
-                        filtered.map((product) => (
-                            <Col key={product.id}>
-                                <ProductCard product={product} />
-                            </Col>
-                        ))
-                    ) : (
-                        <p className="text-center">
-                            No se encontraron productos.
-                        </p>
-                    )}
-                </Row>
-            )}
-        </Container>
-    );
+      <Form className="mb-4">
+        <Form.Control
+          type="text"
+          placeholder="Buscar por nombre..."
+          value={filter}
+          onChange={handleFilter}
+        />
+      </Form>
+
+      {loading ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-2">Cargando productos...</p>
+        </div>
+      ) : (
+        <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+          {filtered.length > 0 ? (
+            filtered.map((product) => (
+              <Col key={product.id}>
+                <ProductCard product={product} />
+              </Col>
+            ))
+          ) : (
+            <p className="text-center">No se encontraron productos.</p>
+          )}
+        </Row>
+      )}
+    </Container>
+  );
 }
 
 export default Catalog;
