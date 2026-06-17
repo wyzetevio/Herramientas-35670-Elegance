@@ -10,6 +10,7 @@ import Profile from "./Pages/Profile";
 import Admin from "./Pages/Admin";
 import AdminRoute from "./Components/AdminRoute";
 import MyOrders from "./Pages/MyOrders";
+import AccessibilityPanel from "./Components/AccessibilityPanel";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         </Routes>
       </div>
       <Footer />
+      <AccessibilityPanel />
     </div>
   );
 }
