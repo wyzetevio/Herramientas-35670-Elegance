@@ -9,25 +9,36 @@ function Catalog() {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-
-    useEffect(() => {
+  useEffect(() => {
     getProducts()
-        .then((res) => {
-            setProducts(res.data);
-            setFiltered(res.data);
-            setLoading(false);
-        })
-        .catch((err) => {
-            console.error("Error al cargar productos:", err);
-            setLoading(false);
-        });
-}, []);
+      .then((res) => {
+        const data = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
 
+        setProducts(data);
+        setFiltered(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error al cargar productos:", err);
+        setProducts([]);
+        setFiltered([]);
+        setLoading(false);
+      });
+  }, []);
 
   const handleFilter = (e) => {
     const value = e.target.value.toLowerCase();
     setFilter(value);
-    setFiltered(products.filter((p) => p.nombre.toLowerCase().includes(value)));
+
+    setFiltered(
+      products.filter((p) =>
+        (p.nombre || "").toLowerCase().includes(value)
+      )
+    );
   };
 
   return (
@@ -50,7 +61,7 @@ function Catalog() {
         </div>
       ) : (
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-          {filtered.length > 0 ? (
+          {Array.isArray(filtered) && filtered.length > 0 ? (
             filtered.map((product) => (
               <Col key={product.id}>
                 <ProductCard product={product} />
