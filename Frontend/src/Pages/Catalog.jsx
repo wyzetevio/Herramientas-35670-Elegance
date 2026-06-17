@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Spinner } from "react-bootstrap";
 import ProductCard from "../Components/ProductCard";
-import axios from "axios";
+import { getProducts } from "../Services/Api";
 
 function Catalog() {
   const [products, setProducts] = useState([]);
@@ -9,19 +9,20 @@ function Catalog() {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/products")
-      .then((res) => {
-        setProducts(res.data);
-        setFiltered(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al cargar productos:", err);
-        setLoading(false);
-      });
-  }, []);
+
+    useEffect(() => {
+    getProducts()
+        .then((res) => {
+            setProducts(res.data);
+            setFiltered(res.data);
+            setLoading(false);
+        })
+        .catch((err) => {
+            console.error("Error al cargar productos:", err);
+            setLoading(false);
+        });
+}, []);
+
 
   const handleFilter = (e) => {
     const value = e.target.value.toLowerCase();
