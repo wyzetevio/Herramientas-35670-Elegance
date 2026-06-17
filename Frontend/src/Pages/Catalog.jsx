@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Spinner } from "react-bootstrap";
 import ProductCard from "../Components/ProductCard";
 import { getProducts } from "../Services/Api";
-import axios from "axios";
 
 function Catalog() {
   const [products, setProducts] = useState([]);
