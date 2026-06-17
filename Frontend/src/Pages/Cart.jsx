@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createOrder } from "../Services/Api";
 import { Container, Button, Alert } from "react-bootstrap";
 import CartItem from "../Components/CartItem";
 import { useCart } from "../Context/CartContext";
@@ -9,24 +7,10 @@ function Cart() {
   const { cart, removeFromCart, clearCart } = useCart();
 
   const [checkout, setCheckout] = useState(false);
-  const navigate = useNavigate();
 
-  const handleCheckout = async () => {
-    try {
-      await createOrder();
-
-      setCheckout(true);
-
-      clearCart();
-
-      setTimeout(() => {
-        navigate("/my-orders");
-      }, 1500);
-    } catch (error) {
-      console.error(error);
-
-      alert(error.response?.data?.message || "Error al realizar la compra");
-    }
+  const handleCheckout = () => {
+    setCheckout(true);
+    clearCart();
   };
 
   const total = cart.reduce(
