@@ -4,10 +4,10 @@ import ProductCard from "../Components/ProductCard";
 import { getProducts } from "../Services/Api";
 
 function Catalog() {
-  const [products, setProducts] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [filter, setFilter] = useState("");
-  const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState([]);
+    const [filtered, setFiltered] = useState([]);
+    const [filter, setFilter] = useState("");
+    const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getProducts()
@@ -41,18 +41,18 @@ function Catalog() {
     );
   };
 
-  return (
-    <Container className="my-5">
-      <h2 className="mb-4 text-center">Catálogo de Productos</h2>
+    return (
+        <Container className="my-5">
+            <h2 className="mb-4 text-center">Catálogo de Productos</h2>
 
-      <Form className="mb-4">
-        <Form.Control
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={filter}
-          onChange={handleFilter}
-        />
-      </Form>
+            <Form className="mb-4">
+                <Form.Control
+                    type="text"
+                    placeholder="Buscar por nombre..."
+                    value={filter}
+                    onChange={handleFilter}
+                />
+            </Form>
 
       {loading ? (
         <div className="text-center my-5">

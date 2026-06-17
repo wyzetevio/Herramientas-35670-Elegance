@@ -19,15 +19,6 @@ function App() {
 
       <div className="flex-grow-1">
         <Routes>
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <Admin />
-              </AdminRoute>
-            }
-          />
-          <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/cart" element={<Cart />} />
