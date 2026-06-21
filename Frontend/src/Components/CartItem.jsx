@@ -8,14 +8,14 @@ function CartItem({ item, removeFromCart }) {
       <Row className="g-0 align-items-center">
         <Col md={3}>
           <Card.Img
-            src={item.image || "https://via.placeholder.com/120"}
-            alt={item.name}
+            src={item.image || item.imagen || "https://via.placeholder.com/120"}
+            alt={item.name || item.nombre}
             style={{ height: "100px", objectFit: "cover" }}
           />
         </Col>
         <Col md={6}>
           <Card.Body>
-            <Card.Title>{item.name}</Card.Title>
+            <Card.Title>{item.name || item.nombre}</Card.Title>
             <Card.Text className="text-muted mb-1">
               Precio: S/. {Number(item.precio).toFixed(2)}
             </Card.Text>
@@ -30,7 +30,7 @@ function CartItem({ item, removeFromCart }) {
         <Col md={3} className="text-end pe-3">
           <Button
             variant="outline-danger"
-            onClick={() => removeFromCart(item.id)}
+            onClick={() => removeFromCart(item.product_id || item.id)}
           >
             Quitar
           </Button>

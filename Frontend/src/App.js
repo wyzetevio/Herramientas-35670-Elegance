@@ -11,6 +11,7 @@ import Admin from "./Pages/Admin";
 import AdminRoute from "./Components/AdminRoute";
 import MyOrders from "./Pages/MyOrders";
 import AccessibilityPanel from "./Components/AccessibilityPanel";
+import Checkout from "./Pages/Checkout";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </div>
       <Footer />
