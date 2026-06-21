@@ -27,8 +27,8 @@ function NavigationBar() {
               Catálogo
             </Nav.Link>
 
-            <Nav.Link as={Link} to="/contact">
-              Contacto
+            <Nav.Link as={Link} to="/claims">
+              Libro de Reclamaciones
             </Nav.Link>
 
             {user?.role === "admin" && (

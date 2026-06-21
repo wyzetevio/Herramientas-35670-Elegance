@@ -59,4 +59,6 @@ export const updateOrderStatus = (id, estado) =>
 
 export const getDashboardStats = () => API.get("/dashboard");
 
+export const createClaim = (data) => API.post("/claims", data);
+
 export default API;
