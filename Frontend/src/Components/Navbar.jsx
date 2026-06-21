@@ -31,6 +31,10 @@ function NavigationBar() {
               Contacto
             </Nav.Link>
 
+            <Nav.Link as={Link} to="/claims">
+              Libro de Reclamaciones
+            </Nav.Link>
+
             {user?.role === "admin" && (
               <Nav.Link as={Link} to="/admin">
                 Administración
