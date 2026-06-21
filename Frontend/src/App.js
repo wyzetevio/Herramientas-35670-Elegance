@@ -11,6 +11,7 @@ import Admin from "./Pages/Admin";
 import AdminRoute from "./Components/AdminRoute";
 import MyOrders from "./Pages/MyOrders";
 import AccessibilityPanel from "./Components/AccessibilityPanel";
+import Checkout from "./Pages/Checkout";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/claims" element={<Claims />} />
         </Routes>
       </div>

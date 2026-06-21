@@ -6,7 +6,6 @@ export const createOrderDB = async (userId) => {
   try {
     await client.query("BEGIN");
 
-    // Obtener productos del carrito
     const cartResult = await client.query(
       `
   SELECT
@@ -35,13 +34,11 @@ export const createOrderDB = async (userId) => {
       throw new Error("El carrito está vacío");
     }
 
-    // Calcular total
     const total = cartItems.reduce(
       (sum, item) => sum + item.quantity * item.precio,
       0,
     );
 
-    // Crear pedido
     const orderResult = await client.query(
       `
       INSERT INTO orders
@@ -54,17 +51,11 @@ export const createOrderDB = async (userId) => {
 
     const order = orderResult.rows[0];
 
-    // Crear detalles
     for (const item of cartItems) {
       await client.query(
         `
     INSERT INTO order_details
-    (
-      order_id,
-      product_id,
-      cantidad,
-      precio_unitario
-    )
+    (order_id, product_id, cantidad, precio_unitario)
     VALUES ($1,$2,$3,$4)
     `,
         [order.id, item.product_id, item.quantity, item.precio],
@@ -80,12 +71,8 @@ export const createOrderDB = async (userId) => {
       );
     }
 
-    // Vaciar carrito
     await client.query(
-      `
-      DELETE FROM cart
-      WHERE user_id = $1
-      `,
+      `DELETE FROM cart WHERE user_id = $1`,
       [userId],
     );
 
@@ -104,7 +91,7 @@ export const getAllOrdersDB = async () => {
   const result = await pool.query(`
     SELECT
       o.id,
-      o.fecha,
+      o.fecha_creacion,
       o.total,
       o.estado,
       u.nombre AS cliente
