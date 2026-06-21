@@ -91,7 +91,7 @@ export const getAllOrdersDB = async () => {
   const result = await pool.query(`
     SELECT
       o.id,
-      o.fecha_creacion,
+      o.fecha,
       o.total,
       o.estado,
       u.nombre AS cliente

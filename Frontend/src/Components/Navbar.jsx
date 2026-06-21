@@ -53,9 +53,15 @@ function NavigationBar() {
               )}
             </Nav.Link>
 
-            <Nav.Link as={Link} to="/login" className="ms-3">
-              Acceder
-            </Nav.Link>
+{user ? (
+  <Nav.Link as={Link} to="/profile" className="ms-3">
+     Hola, {user.nombre}
+  </Nav.Link>
+) : (
+  <Nav.Link as={Link} to="/login" className="ms-3">
+    Acceder
+  </Nav.Link>
+)}
           </Nav>
         </Navbar.Collapse>
       </Container>
