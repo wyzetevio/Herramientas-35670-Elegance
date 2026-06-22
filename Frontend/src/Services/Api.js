@@ -25,8 +25,8 @@ export const addToCart = (user_id, product_id, talla, quantity) =>
 export const updateQuantity = (user_id, product_id, quantity) =>
   API.put("/cart", { user_id, product_id, quantity });
 
-export const removeFromCart = (user_id, product_id) =>
-  API.delete(`/cart/${user_id}/${product_id}`);
+export const removeFromCart = (user_id, product_id, talla) =>
+  API.delete(`/cart/${user_id}/${product_id}/${talla}`);
 
 export const clearCart = (user_id) => API.delete(`/cart/clear/${user_id}`);
 
