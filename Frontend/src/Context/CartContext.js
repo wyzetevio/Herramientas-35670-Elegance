@@ -79,7 +79,10 @@ export const CartProvider = ({ children }) => {
         ];
       });
     } catch (error) {
-      console.error("Error al agregar al carrito:", error);
+      const mensaje =
+        error.response?.data?.message || "No se pudo agregar el producto.";
+
+      alert(mensaje);
     }
   };
 

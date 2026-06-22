@@ -31,7 +31,16 @@ export const addCartItem = async (req, res) => {
     res.json({ message: "Producto agregado al carrito" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error al agregar producto" });
+
+    if (err.message.includes("Solo hay")) {
+      return res.status(400).json({
+        message: err.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Error al agregar producto",
+    });
   }
 };
 
