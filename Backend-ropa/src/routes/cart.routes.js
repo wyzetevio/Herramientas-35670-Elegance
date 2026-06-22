@@ -13,6 +13,6 @@ router.get("/:userId", getCart);
 router.post("/", addCartItem);
 router.put("/", updateCartItem);
 router.delete("/clear/:userId", clearCartUser);
-router.delete("/:userId/:productId", deleteCartProduct);
+router.delete("/:userId/:productId/:talla", deleteCartProduct);
 
 export default router;

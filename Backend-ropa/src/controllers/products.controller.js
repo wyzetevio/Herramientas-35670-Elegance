@@ -8,11 +8,24 @@ import {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await getAllProducts();
+    const {
+      categoria,
+      genero,
+      search,
+      orderPrice,
+    } = req.query;
+
+    const products = await getAllProducts(
+      categoria,
+      genero,
+      search,
+      orderPrice
+    );
+
     res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al obtener los productos" });
+    res.status(500).json({ message: "Error al obtener productos" });
   }
 };
 
@@ -32,6 +45,7 @@ export const createNewProduct = async (req, res) => {
     const product = await createProduct(req.body);
     res.status(201).json(product);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al crear el producto" });
   }
 };

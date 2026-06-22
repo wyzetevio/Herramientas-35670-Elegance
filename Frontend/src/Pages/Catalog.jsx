@@ -5,53 +5,107 @@ import { getProducts } from "../Services/Api";
 
 function Catalog() {
   const [products, setProducts] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [filters, setFilters] = useState({
+    search: "",
+    categoria: "",
+    genero: "",
+    minPrice: "",
+    maxPrice: "",
+  });
+
   useEffect(() => {
-    getProducts()
-      .then((res) => {
+    const fetchProducts = async () => {
+      setLoading(true);
+
+      try {
+        const res = await getProducts(filters);
+
         const data = Array.isArray(res.data?.data)
           ? res.data.data
           : Array.isArray(res.data)
-          ? res.data
-          : [];
+            ? res.data
+            : [];
 
         setProducts(data);
-        setFiltered(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error al cargar productos:", err);
         setProducts([]);
-        setFiltered([]);
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    };
 
-  const handleFilter = (e) => {
-    const value = e.target.value.toLowerCase();
-    setFilter(value);
-
-    setFiltered(
-      products.filter((p) =>
-        (p.nombre || "").toLowerCase().includes(value)
-      )
-    );
-  };
+    fetchProducts();
+  }, [filters]);
 
   return (
     <Container className="my-5">
       <h2 className="mb-4 text-center">Catálogo de Productos</h2>
 
       <Form className="mb-4">
+        {/* Buscar */}
         <Form.Control
+          className="mb-3"
           type="text"
           placeholder="Buscar por nombre..."
-          value={filter}
-          onChange={handleFilter}
+          value={filters.search}
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              search: e.target.value,
+            })
+          }
         />
+
+        {/* Género */}
+        <Form.Select
+          className="mb-3"
+          value={filters.genero}
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              genero: e.target.value,
+            })
+          }
+        >
+          <option value="">Todos los géneros</option>
+          <option value="Hombre">Hombre</option>
+          <option value="Mujer">Mujer</option>
+          <option value="Unisex">Unisex</option>
+        </Form.Select>
+
+        {/* Categoría */}
+        <Form.Select
+          value={filters.categoria}
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              categoria: e.target.value,
+            })
+          }
+        >
+          <option value="">Todas las categorías</option>
+          <option value="Polos">Polos</option>
+          <option value="Pantalones">Pantalones</option>
+          <option value="Zapatillas">Zapatillas</option>
+        </Form.Select>
+
+
+        <Form.Select
+          value={filters.orderPrice}
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              orderPrice: e.target.value,
+            })
+          }
+        >
+          <option value="">Ordenar por precio</option>
+          <option value="asc">Menor a mayor</option>
+          <option value="desc">Mayor a menor</option>
+        </Form.Select>
       </Form>
 
       {loading ? (
@@ -61,8 +115,8 @@ function Catalog() {
         </div>
       ) : (
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-          {Array.isArray(filtered) && filtered.length > 0 ? (
-            filtered.map((product) => (
+          {products.length > 0 ? (
+            products.map((product) => (
               <Col key={product.id}>
                 <ProductCard product={product} />
               </Col>
