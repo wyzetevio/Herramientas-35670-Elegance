@@ -53,7 +53,7 @@ function MyOrders() {
           {orders.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
-              <td>{new Date(order.fecha_creacion).toLocaleDateString("es-PE")}</td>
+              <td>{new Date(order.fecha).toLocaleDateString("es-PE")}</td>
               <td>S/. {Number(order.total).toFixed(2)}</td>
               <td>
                 <Badge bg={getVariant(order.estado)}>{order.estado}</Badge>
