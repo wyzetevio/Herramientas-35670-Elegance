@@ -4,39 +4,38 @@ import { getProfile } from "../Services/Api";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            if (token) {
-                try {
-                    const res = await getProfile(token);
-                    setUser(res.data);
-                } catch (error) {
-                    console.error("Error al obtener perfil:", error);
-                    logout();
-                }
-            }
-        };
-        fetchUser();
-    }, [token]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!token) return;
 
-    const login = (data) => {
-        localStorage.setItem("token", data.token);
-        setToken(data.token);
-        setUser(data.user);
+      try {
+        const res = await getProfile();
+        setUser(res.data);
+      } catch (error) {
+        logout();
+      }
     };
 
-    const logout = () => {
-        localStorage.removeItem("token");
-        setUser(null);
-        setToken(null);
-    };
+    fetchUser();
+  }, [token]);
 
-    return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const login = (data) => {
+    localStorage.setItem("token", data.token);
+    setToken(data.token);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    setToken(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, token, login, logout, setUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

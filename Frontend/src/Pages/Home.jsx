@@ -13,13 +13,13 @@ function Home() {
             id: 2,
             nombre: 'Vestido floral',
             precio: 149.90,
-            imagen: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
+            imagen: 'https://png.pngtree.com/png-clipart/20250119/original/pngtree-white-dress-with-delicate-flower-print-png-image_19947682.png',
         },
         {
             id: 3,
             nombre: 'Zapatillas urbanas',
             precio: 229.90,
-            imagen: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f',
+            imagen: 'https://thn.pe/cdn/shop/files/HQ8708_1.jpg?v=1718127099&width=600',
         },
     ];
 
@@ -30,7 +30,7 @@ function Home() {
                 <Carousel.Item>
                     <img
                         className="d-block w-100"
-                        src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f"
+                        src="https://png.pngtree.com/png-clipart/20250119/original/pngtree-white-dress-with-delicate-flower-print-png-image_19947682.png"
                         alt="Moda femenina"
                         style={{ height: '500px', objectFit: 'cover' }}
                     />

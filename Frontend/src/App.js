@@ -5,8 +5,14 @@ import Home from "./Pages/Home";
 import Catalog from "./Pages/Catalog";
 import Cart from "./Pages/Cart";
 import Login from "./Pages/Auth";
-import Contact from "./Pages/Contact";
 import Profile from "./Pages/Profile";
+import Claims from "./Pages/Claims";
+import Admin from "./Pages/Admin";
+import AdminRoute from "./Components/AdminRoute";
+import MyOrders from "./Pages/MyOrders";
+import AccessibilityPanel from "./Components/AccessibilityPanel";
+import Checkout from "./Pages/Checkout";
+
 
 function App() {
   return (
@@ -15,15 +21,26 @@ function App() {
 
       <div className="flex-grow-1">
         <Routes>
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
+          <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/claims" element={<Claims />} />
         </Routes>
       </div>
       <Footer />
+      <AccessibilityPanel />
     </div>
   );
 }

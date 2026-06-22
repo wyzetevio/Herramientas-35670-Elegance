@@ -1,167 +1,184 @@
-import { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as cartService from '../Services/Api';
-import { AuthContext } from './AuthContext';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import * as cartService from "../Services/Api";
+import { AuthContext } from "./AuthContext";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState([]);
-    const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
+  const [cart, setCart] = useState([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    const getCurrentUser = useCallback(() => {
-        try {
-            const fromContext = user || JSON.parse(localStorage.getItem('user'));
-            if (!fromContext) return null;
+  const getCurrentUser = useCallback(() => {
+    return user || null;
+  }, [user]);
 
-            const id = fromContext.id ?? fromContext.user_id ?? null;
-            return id ? { ...fromContext, id } : null;
-        } catch {
-            return null;
-        }
-    }, [user]);
-
-
-    useEffect(() => {
-        const fetchCart = async () => {
-            try {
-                const currentUser = getCurrentUser();
-                if (currentUser?.id) {
-                    const res = await cartService.getCart(currentUser.id);
-                    setCart(res.data || []);
-                } else {
-                    setCart([]);
-                }
-            } catch (error) {
-                console.error('Error al obtener carrito:', error);
-            }
-        };
-        fetchCart();
-    }, [user, getCurrentUser]);
-
-
-
-    const normalizeProductForCart = (product) => {
-
-        const id = product.id ?? product.product_id ?? product.productId;
-        const name = product.name ?? product.nombre ?? product.title ?? 'Producto';
-        const image = product.image ?? product.image_url ?? product.imagen ?? null;
-        const precio = Number(product.price ?? product.precio ?? 0);
-
-        return { id, name, image, precio };
-    };
-
-    const addItem = async (product, quantity = 1) => {
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
         const currentUser = getCurrentUser();
-
-        if (!currentUser || !currentUser.id) {
-            alert('Debes iniciar sesión para agregar productos al carrito.');
-            navigate('/login');
-            return;
+        if (currentUser?.id) {
+          const res = await cartService.getCart(currentUser.id);
+          setCart(res.data || []);
+        } else {
+          setCart([]);
         }
-
-        const normalized = normalizeProductForCart(product);
-
-        try {
-            try {
-                await cartService.addToCart(currentUser.id, normalized.id, quantity);
-            } catch (err) {
-                console.warn('No se pudo guardar en el backend (o no configurado).', err);
-            }
-
-            setCart(prev => {
-                const existing = prev.find(i =>
-                    (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
-                );
-                if (existing) {
-                    return prev.map(i =>
-                        (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
-                            ? { ...i, quantity: (i.quantity || 1) + quantity }
-                            : i
-                    );
-                }
-
-                return [...prev, {
-                    id: normalized.id,
-                    name: normalized.name,
-                    precio: normalized.precio,
-                    image: normalized.image,
-                    quantity
-                }];
-            });
-        } catch (error) {
-            console.error('Error al agregar al carrito:', error);
-        }
+      } catch (error) {
+        console.error("Error al obtener carrito:", error);
+      }
     };
+    fetchCart();
+  }, [user, getCurrentUser]);
 
+  const addItem = async (product, talla, quantity = 1) => {
+    const currentUser = getCurrentUser();
 
-    const updateItem = async (productId, quantity) => {
-        const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
-            navigate('/auth');
-            return;
+    if (!currentUser || !currentUser.id) {
+      alert("Debes iniciar sesión para agregar productos al carrito.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await cartService.addToCart(currentUser.id, product.id, talla, quantity);
+      setToastMessage(`${product.nombre} agregado al carrito`);
+      setShowToast(true);
+      setCart((prev) => {
+        const existing = prev.find(
+          (i) => i.product_id === product.id && i.talla === talla,
+        );
+
+        if (existing) {
+          return prev.map((i) =>
+            i.product_id === product.id && i.talla === talla
+              ? { ...i, quantity: i.quantity + quantity }
+              : i,
+          );
         }
 
-        try {
-            await cartService.updateQuantity(currentUser.id, productId, quantity);
-            setCart(prev =>
-                prev.map(i =>
-                    (i.product_id ? i.product_id === productId : i.id === productId) ? { ...i, quantity } : i
-                )
-            );
-        } catch (error) {
-            console.error('Error al actualizar cantidad:', error);
-        }
-    };
+        return [
+          ...prev,
+          {
+            product_id: product.id,
+            nombre: product.nombre,
+            precio: product.precio,
+            imagen: product.imagen,
+            talla,
+            quantity,
+          },
+        ];
+      });
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+    }
+  };
 
-    const removeItem = async (productId) => {
-        const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
-            navigate('/auth');
-            return;
-        }
+  const updateItem = async (productId, talla, quantity) => {
+    const currentUser = getCurrentUser();
+    if (!currentUser?.id) {
+      navigate("/auth");
+      return;
+    }
 
-        try {
-            await cartService.removeFromCart(currentUser.id, productId);
-            setCart(prev => prev.filter(i => (i.product_id ? i.product_id !== productId : i.id !== productId)));
-        } catch (error) {
-            console.error('Error al eliminar producto:', error);
-        }
-    };
+    try {
+      await cartService.updateQuantity(
+        currentUser.id,
+        productId,
+        talla,
+        quantity,
+      );
 
-    const clear = async () => {
-        const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
-            navigate('/auth');
-            return;
-        }
+      setCart((prev) =>
+        prev.map((i) =>
+          i.product_id === productId && i.talla === talla
+            ? { ...i, quantity }
+            : i,
+        ),
+      );
+    } catch (error) {
+      console.error("Error al actualizar cantidad:", error);
+    }
+  };
 
-        try {
-            await cartService.clearCart(currentUser.id);
-            setCart([]);
-        } catch (error) {
-            console.error('Error al limpiar carrito:', error);
-        }
-    };
+  const removeItem = async (productId, talla) => {
+    const currentUser = getCurrentUser();
+    if (!currentUser?.id) {
+      navigate("/auth");
+      return;
+    }
 
-    return (
-        <CartContext.Provider value={{
-            cart,
-            addToCart: addItem,
-            updateQuantity: updateItem,
-            removeFromCart: removeItem,
-            clearCart: clear
-        }}>
-            {children}
-        </CartContext.Provider>
-    );
+    try {
+      await cartService.removeFromCart(currentUser.id, productId, talla);
+
+      setCart((prev) =>
+        prev.filter((i) => !(i.product_id === productId && i.talla === talla)),
+      );
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+    }
+  };
+
+  const clear = async () => {
+    const currentUser = getCurrentUser();
+    if (!currentUser?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      await cartService.clearCart(currentUser.id);
+      setCart([]);
+    } catch (error) {
+      console.error("Error al limpiar carrito:", error);
+    }
+  };
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart: addItem,
+        updateQuantity: updateItem,
+        removeFromCart: removeItem,
+        clearCart: clear,
+        showToast,
+        setShowToast,
+        toastMessage,
+      }}
+    >
+      {children}
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={2500}
+          autohide
+        >
+          <Toast.Header>
+            <strong className="me-auto">Carrito</strong>
+          </Toast.Header>
+
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+    </CartContext.Provider>
+  );
 };
 
 export const useCart = () => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart debe usarse dentro de un CartProvider');
-    }
-    return context;
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart debe usarse dentro de un CartProvider");
+  }
+  return context;
 };
