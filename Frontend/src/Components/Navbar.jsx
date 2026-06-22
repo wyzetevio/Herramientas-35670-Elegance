@@ -7,11 +7,11 @@ import { AuthContext } from "../Context/AuthContext";
 
 function NavigationBar() {
   const { cart } = useCart();
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
       <Container>
-        {/* Logo o nombre */}
         <Navbar.Brand as={Link} to="/">
           ELEGANCE
         </Navbar.Brand>
@@ -41,7 +41,6 @@ function NavigationBar() {
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/cart" className="position-relative">
               <FaShoppingCart size={22} />
-
               {cart.length > 0 && (
                 <Badge
                   bg="danger"
@@ -53,15 +52,25 @@ function NavigationBar() {
               )}
             </Nav.Link>
 
-{user ? (
-  <Nav.Link as={Link} to="/profile" className="ms-3">
-     Hola, {user.nombre}
-  </Nav.Link>
-) : (
-  <Nav.Link as={Link} to="/login" className="ms-3">
-    Acceder
-  </Nav.Link>
-)}
+            {user ? (
+              <>
+                <Nav.Link as={Link} to="/profile" className="ms-3">
+                  Perfil
+                </Nav.Link>
+
+                <Nav.Link
+                  onClick={logout}
+                  className="ms-3 text-danger"
+                  style={{ cursor: "pointer" }}
+                >
+                  Salir
+                </Nav.Link>
+              </>
+            ) : (
+              <Nav.Link as={Link} to="/login" className="ms-3">
+                Acceder
+              </Nav.Link>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

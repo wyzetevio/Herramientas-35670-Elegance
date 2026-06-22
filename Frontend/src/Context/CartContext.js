@@ -37,16 +37,7 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, [user, getCurrentUser]);
 
-  const normalizeProductForCart = (product) => {
-    const id = product.id ?? product.product_id ?? product.productId;
-    const name = product.name ?? product.nombre ?? product.title ?? "Producto";
-    const image = product.image ?? product.image_url ?? product.imagen ?? null;
-    const precio = Number(product.price ?? product.precio ?? 0);
-
-    return { id, name, image, precio };
-  };
-
-  const addItem = async (product, quantity = 1) => {
+  const addItem = async (product, talla, quantity = 1) => {
     const currentUser = getCurrentUser();
 
     if (!currentUser || !currentUser.id) {
@@ -55,53 +46,37 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    const normalized = normalizeProductForCart(product);
-
     try {
-      try {
-        await cartService.addToCart(currentUser.id, normalized.id, quantity);
-      } catch (err) {
-        console.warn(
-          "No se pudo guardar en el backend (o no configurado).",
-          err,
-        );
-      }
+      await cartService.addToCart(
+        currentUser.id,
+        product.id,
+        talla,
+        quantity
+      );
 
       setCart((prev) => {
-        const existing = prev.find((i) =>
-          i.product_id
-            ? i.product_id === normalized.id
-            : i.id === normalized.id,
+        const existing = prev.find(
+          (i) =>
+            i.product_id === product.id &&
+            i.talla === talla
         );
+
         if (existing) {
-          const currentQuantity = existing.quantity || 1;
-
-          if (currentQuantity + quantity > product.stock) {
-            alert(
-              `Solo hay ${product.stock} unidades disponibles de ${product.nombre}`,
-            );
-
-            return prev;
-          }
-
           return prev.map((i) =>
-            (
-              i.product_id
-                ? i.product_id === normalized.id
-                : i.id === normalized.id
-            )
-              ? { ...i, quantity: currentQuantity + quantity }
-              : i,
+            i.product_id === product.id && i.talla === talla
+              ? { ...i, quantity: i.quantity + quantity }
+              : i
           );
         }
 
         return [
           ...prev,
           {
-            id: normalized.id,
-            name: normalized.name,
-            precio: normalized.precio,
-            image: normalized.image,
+            product_id: product.id,
+            nombre: product.nombre,
+            precio: product.precio,
+            imagen: product.imagen,
+            talla,
             quantity,
           },
         ];
@@ -111,7 +86,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateItem = async (productId, quantity) => {
+  const updateItem = async (productId, talla, quantity) => {
     const currentUser = getCurrentUser();
     if (!currentUser?.id) {
       navigate("/auth");
@@ -119,20 +94,26 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await cartService.updateQuantity(currentUser.id, productId, quantity);
+      await cartService.updateQuantity(
+        currentUser.id,
+        productId,
+        talla,
+        quantity
+      );
+
       setCart((prev) =>
         prev.map((i) =>
-          (i.product_id ? i.product_id === productId : i.id === productId)
+          i.product_id === productId && i.talla === talla
             ? { ...i, quantity }
-            : i,
-        ),
+            : i
+        )
       );
     } catch (error) {
       console.error("Error al actualizar cantidad:", error);
     }
   };
 
-  const removeItem = async (productId) => {
+  const removeItem = async (productId, talla) => {
     const currentUser = getCurrentUser();
     if (!currentUser?.id) {
       navigate("/auth");
@@ -140,11 +121,17 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await cartService.removeFromCart(currentUser.id, productId);
+      await cartService.removeFromCart(
+        currentUser.id,
+        productId,
+        talla
+      );
+
       setCart((prev) =>
-        prev.filter((i) =>
-          i.product_id ? i.product_id !== productId : i.id !== productId,
-        ),
+        prev.filter(
+          (i) =>
+            !(i.product_id === productId && i.talla === talla)
+        )
       );
     } catch (error) {
       console.error("Error al eliminar producto:", error);

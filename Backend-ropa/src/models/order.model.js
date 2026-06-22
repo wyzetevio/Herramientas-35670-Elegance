@@ -8,35 +8,45 @@ export const createOrderDB = async (userId) => {
 
     const cartResult = await client.query(
       `
-  SELECT
-    c.product_id,
-    c.quantity,
-    p.nombre,
-    p.precio,
-    p.stock
-  FROM cart c
-  JOIN products p
-    ON c.product_id = p.id
-  WHERE c.user_id = $1
-  `,
-      [userId],
+      SELECT
+        c.product_id,
+        c.talla,
+        c.quantity,
+        p.nombre,
+        p.precio
+      FROM cart c
+      JOIN products p ON c.product_id = p.id
+      WHERE c.user_id = $1
+      `,
+      [userId]
     );
 
     const cartItems = cartResult.rows;
-
-    for (const item of cartItems) {
-      if (item.quantity > item.stock) {
-        throw new Error(`Stock insuficiente para ${item.nombre}`);
-      }
-    }
 
     if (cartItems.length === 0) {
       throw new Error("El carrito está vacío");
     }
 
+    for (const item of cartItems) {
+      const stockResult = await client.query(
+        `
+        SELECT stock
+        FROM product_tallas
+        WHERE product_id = $1 AND talla = $2
+        `,
+        [item.product_id, item.talla]
+      );
+
+      const stock = stockResult.rows[0]?.stock || 0;
+
+      if (item.quantity > stock) {
+        throw new Error(`Stock insuficiente para ${item.nombre} talla ${item.talla}`);
+      }
+    }
+
     const total = cartItems.reduce(
       (sum, item) => sum + item.quantity * item.precio,
-      0,
+      0
     );
 
     const orderResult = await client.query(
@@ -46,7 +56,7 @@ export const createOrderDB = async (userId) => {
       VALUES ($1, $2)
       RETURNING *
       `,
-      [userId, total],
+      [userId, total]
     );
 
     const order = orderResult.rows[0];
@@ -54,26 +64,42 @@ export const createOrderDB = async (userId) => {
     for (const item of cartItems) {
       await client.query(
         `
-    INSERT INTO order_details
-    (order_id, product_id, cantidad, precio_unitario)
-    VALUES ($1,$2,$3,$4)
-    `,
-        [order.id, item.product_id, item.quantity, item.precio],
+        INSERT INTO order_details
+        (
+          order_id,
+          product_id,
+          cantidad,
+          precio_unitario,
+          talla
+        )
+        VALUES ($1,$2,$3,$4,$5)
+        `,
+        [
+          order.id,
+          item.product_id,
+          item.quantity,
+          item.precio,
+          item.talla
+        ]
       );
 
       await client.query(
         `
-    UPDATE products
-    SET stock = stock - $1
-    WHERE id = $2
-    `,
-        [item.quantity, item.product_id],
+        UPDATE product_tallas
+        SET stock = stock - $1
+        WHERE product_id = $2
+        AND talla = $3
+        `,
+        [item.quantity, item.product_id, item.talla]
       );
     }
 
     await client.query(
-      `DELETE FROM cart WHERE user_id = $1`,
-      [userId],
+      `
+      DELETE FROM cart
+      WHERE user_id = $1
+      `,
+      [userId]
     );
 
     await client.query("COMMIT");
@@ -112,7 +138,7 @@ export const getOrdersByUserDB = async (userId) => {
     WHERE user_id = $1
     ORDER BY id DESC
     `,
-    [userId],
+    [userId]
   );
 
   return result.rows;
@@ -126,7 +152,7 @@ export const updateOrderStatusDB = async (id, estado) => {
     WHERE id = $2
     RETURNING *
     `,
-    [estado, id],
+    [estado, id]
   );
 
   return result.rows[0];

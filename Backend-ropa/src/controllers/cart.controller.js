@@ -24,8 +24,10 @@ export const getCart = async (req, res) => {
 
 export const addCartItem = async (req, res) => {
   try {
-    const { user_id, product_id, quantity } = req.body;
-    await addProductToCart(user_id, product_id, quantity);
+    const { user_id, product_id, talla, quantity } = req.body;
+
+    await addProductToCart(user_id, product_id, talla, quantity);
+
     res.json({ message: "Producto agregado al carrito" });
   } catch (err) {
     console.error(err);
@@ -35,8 +37,10 @@ export const addCartItem = async (req, res) => {
 
 export const updateCartItem = async (req, res) => {
   try {
-    const { user_id, product_id, quantity } = req.body;
-    await updateCartQuantity(user_id, product_id, quantity);
+    const { user_id, product_id, talla, quantity } = req.body;
+
+    await updateCartQuantity(user_id, product_id, talla, quantity);
+
     res.json({ message: "Cantidad actualizada" });
   } catch (err) {
     console.error(err);
@@ -46,9 +50,9 @@ export const updateCartItem = async (req, res) => {
 
 export const deleteCartProduct = async (req, res) => {
   try {
-    const { userId, productId } = req.params;
+    const { userId, productId, talla } = req.params;
 
-    await deleteCartItem(userId, productId);
+    await deleteCartItem(userId, productId, talla);
 
     res.json({
       message: "Producto eliminado",

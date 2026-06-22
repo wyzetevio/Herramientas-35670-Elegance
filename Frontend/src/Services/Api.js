@@ -15,12 +15,12 @@ export const registerUser = (data) => API.post("/users/register", data);
 export const loginUser = (data) => API.post("/users/login", data);
 export const getProfile = () => API.get("/users/profile");
 
-export const getProducts = () => API.get("/products");
+export const getProducts = (filters) => API.get("/products", { params: filters });
 
 export const getCart = (userId) => API.get(`/cart/${userId}`);
 
-export const addToCart = (user_id, product_id, quantity) =>
-  API.post("/cart", { user_id, product_id, quantity });
+export const addToCart = (user_id, product_id, talla, quantity) =>
+  API.post("/cart", { user_id, product_id, talla, quantity });
 
 export const updateQuantity = (user_id, product_id, quantity) =>
   API.put("/cart", { user_id, product_id, quantity });
