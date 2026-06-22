@@ -8,11 +8,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import * as cartService from "../Services/Api";
 import { AuthContext } from "./AuthContext";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -47,25 +50,19 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await cartService.addToCart(
-        currentUser.id,
-        product.id,
-        talla,
-        quantity
-      );
-
+      await cartService.addToCart(currentUser.id, product.id, talla, quantity);
+      setToastMessage(`${product.nombre} agregado al carrito`);
+      setShowToast(true);
       setCart((prev) => {
         const existing = prev.find(
-          (i) =>
-            i.product_id === product.id &&
-            i.talla === talla
+          (i) => i.product_id === product.id && i.talla === talla,
         );
 
         if (existing) {
           return prev.map((i) =>
             i.product_id === product.id && i.talla === talla
               ? { ...i, quantity: i.quantity + quantity }
-              : i
+              : i,
           );
         }
 
@@ -98,15 +95,15 @@ export const CartProvider = ({ children }) => {
         currentUser.id,
         productId,
         talla,
-        quantity
+        quantity,
       );
 
       setCart((prev) =>
         prev.map((i) =>
           i.product_id === productId && i.talla === talla
             ? { ...i, quantity }
-            : i
-        )
+            : i,
+        ),
       );
     } catch (error) {
       console.error("Error al actualizar cantidad:", error);
@@ -121,17 +118,10 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await cartService.removeFromCart(
-        currentUser.id,
-        productId,
-        talla
-      );
+      await cartService.removeFromCart(currentUser.id, productId, talla);
 
       setCart((prev) =>
-        prev.filter(
-          (i) =>
-            !(i.product_id === productId && i.talla === talla)
-        )
+        prev.filter((i) => !(i.product_id === productId && i.talla === talla)),
       );
     } catch (error) {
       console.error("Error al eliminar producto:", error);
@@ -161,9 +151,26 @@ export const CartProvider = ({ children }) => {
         updateQuantity: updateItem,
         removeFromCart: removeItem,
         clearCart: clear,
+        showToast,
+        setShowToast,
+        toastMessage,
       }}
     >
       {children}
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={2500}
+          autohide
+        >
+          <Toast.Header>
+            <strong className="me-auto">Carrito</strong>
+          </Toast.Header>
+
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </CartContext.Provider>
   );
 };
