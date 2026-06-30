@@ -23,15 +23,30 @@ export default function MapaGPS() {
     );
   };
 
+  // 🧭 NUEVO: abrir ruta en Google Maps
+  const abrirRuta = () => {
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${tienda.lat},${tienda.lon}`,
+      "_blank"
+    );
+  };
+
   return (
     <div>
       <h3 className="text-center fw-bold">
         📍 {tienda.nombre}
       </h3>
-
+      <h3 className="text-center fw-bold">
+        Nos pueden encontrar en:
+      </h3>
       <div className="text-center mb-3">
-        <button className="btn btn-dark" onClick={getGPS}>
+        <button className="btn btn-dark me-2" onClick={getGPS}>
           📡 Mostrar mi ubicación
+        </button>
+
+        {/* 🧭 NUEVO BOTÓN */}
+        <button className="btn btn-primary" onClick={abrirRuta}>
+          🧭 Cómo llegar
         </button>
       </div>
 
