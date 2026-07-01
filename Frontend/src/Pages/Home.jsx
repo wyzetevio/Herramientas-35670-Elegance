@@ -1,5 +1,6 @@
 import { Container, Button, Carousel, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import MapaGPS from "../Components/MapaGPS";
 
 function Home() {
     const destacados = [
@@ -98,6 +99,12 @@ function Home() {
                             </Col>
                         ))}
                     </Row>
+                </Container>
+            </section>
+            {/* MAPA + GPS */}
+            <section className="py-5 bg-light">
+                <Container>
+                    <MapaGPS />
                 </Container>
             </section>
         </div>
