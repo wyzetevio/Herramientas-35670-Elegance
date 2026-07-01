@@ -8,6 +8,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import claimRoutes from "./routes/claim.routes.js";
+import chatbotRoutes from "./routes/chatbot.routes.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/claims", claimRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 5000;

@@ -12,7 +12,7 @@ import AdminRoute from "./Components/AdminRoute";
 import MyOrders from "./Pages/MyOrders";
 import AccessibilityPanel from "./Components/AccessibilityPanel";
 import Checkout from "./Pages/Checkout";
-
+import ChatBot from "./Components/ChatBot";
 
 function App() {
   return (
@@ -41,6 +41,7 @@ function App() {
       </div>
       <Footer />
       <AccessibilityPanel />
+      <ChatBot />
     </div>
   );
 }
