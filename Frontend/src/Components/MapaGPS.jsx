@@ -3,6 +3,26 @@ import { tienda } from "../Services/Locations";
 
 export default function MapaGPS() {
   const [user, setUser] = useState(null);
+  const [distancia, setDistancia] = useState(null);
+
+  // 📏 cálculo de distancia (Haversine)
+  function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
 
   const getGPS = () => {
     if (!navigator.geolocation) {
@@ -12,10 +32,22 @@ export default function MapaGPS() {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUser({
+        const userPos = {
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
-        });
+        };
+
+        setUser(userPos);
+
+        // 📏 calcular distancia
+        const km = calcularDistanciaKm(
+          userPos.lat,
+          userPos.lon,
+          tienda.lat,
+          tienda.lon
+        );
+
+        setDistancia(km.toFixed(2));
       },
       (err) => {
         alert("Error GPS: " + err.message);
@@ -23,7 +55,7 @@ export default function MapaGPS() {
     );
   };
 
-  // 🧭 NUEVO: abrir ruta en Google Maps
+  // 🧭 ruta en Google Maps
   const abrirRuta = () => {
     window.open(
       `https://www.google.com/maps/dir/?api=1&destination=${tienda.lat},${tienda.lon}`,
@@ -36,15 +68,16 @@ export default function MapaGPS() {
       <h3 className="text-center fw-bold">
         📍 {tienda.nombre}
       </h3>
+
       <h3 className="text-center fw-bold">
         Nos pueden encontrar en:
       </h3>
+
       <div className="text-center mb-3">
         <button className="btn btn-dark me-2" onClick={getGPS}>
           📡 Mostrar mi ubicación
         </button>
 
-        {/* 🧭 NUEVO BOTÓN */}
         <button className="btn btn-primary" onClick={abrirRuta}>
           🧭 Cómo llegar
         </button>
@@ -53,6 +86,13 @@ export default function MapaGPS() {
       {user && (
         <p className="text-center">
           👤 Tú: {user.lat}, {user.lon}
+        </p>
+      )}
+
+      {/* 📏 DISTANCIA */}
+      {distancia && (
+        <p className="text-center fw-bold">
+          📏 Estás a {distancia} km de la tienda
         </p>
       )}
 
