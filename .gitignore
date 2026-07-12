@@ -12,6 +12,9 @@ dist/
 .env.test.local
 .env.production.local
 
+# Docker / desarrollo local
+docker-compose.override.yml
+
 # logs
 npm-debug.log*
 yarn-debug.log*
@@ -19,6 +22,8 @@ yarn-error.log*
 
 # sistema operativo
 .DS_Store
+Thumbs.db
 
 # editor
 .vscode/
+.idea/
