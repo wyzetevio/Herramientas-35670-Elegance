@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
+import { createComprobanteDB } from "./comprobante.model.js";
 
-export const createOrderDB = async (userId) => {
+export const createOrderDB = async (userId, direccion, metodoPago) => {
   const client = await pool.connect();
 
   try {
@@ -18,7 +19,7 @@ export const createOrderDB = async (userId) => {
       JOIN products p ON c.product_id = p.id
       WHERE c.user_id = $1
       `,
-      [userId]
+      [userId],
     );
 
     const cartItems = cartResult.rows;
@@ -34,19 +35,21 @@ export const createOrderDB = async (userId) => {
         FROM product_tallas
         WHERE product_id = $1 AND talla = $2
         `,
-        [item.product_id, item.talla]
+        [item.product_id, item.talla],
       );
 
       const stock = stockResult.rows[0]?.stock || 0;
 
       if (item.quantity > stock) {
-        throw new Error(`Stock insuficiente para ${item.nombre} talla ${item.talla}`);
+        throw new Error(
+          `Stock insuficiente para ${item.nombre} talla ${item.talla}`,
+        );
       }
     }
 
     const total = cartItems.reduce(
       (sum, item) => sum + item.quantity * item.precio,
-      0
+      0,
     );
 
     const orderResult = await client.query(
@@ -56,10 +59,21 @@ export const createOrderDB = async (userId) => {
       VALUES ($1, $2)
       RETURNING *
       `,
-      [userId, total]
+      [userId, total],
     );
 
     const order = orderResult.rows[0];
+
+    const userResult = await client.query(
+      `
+  SELECT nombre, email
+  FROM users
+  WHERE id = $1
+  `,
+      [userId],
+    );
+
+    const usuario = userResult.rows[0];
 
     for (const item of cartItems) {
       await client.query(
@@ -74,13 +88,7 @@ export const createOrderDB = async (userId) => {
         )
         VALUES ($1,$2,$3,$4,$5)
         `,
-        [
-          order.id,
-          item.product_id,
-          item.quantity,
-          item.precio,
-          item.talla
-        ]
+        [order.id, item.product_id, item.quantity, item.precio, item.talla],
       );
 
       await client.query(
@@ -90,7 +98,7 @@ export const createOrderDB = async (userId) => {
         WHERE product_id = $2
         AND talla = $3
         `,
-        [item.quantity, item.product_id, item.talla]
+        [item.quantity, item.product_id, item.talla],
       );
     }
 
@@ -99,12 +107,28 @@ export const createOrderDB = async (userId) => {
       DELETE FROM cart
       WHERE user_id = $1
       `,
-      [userId]
+      [userId],
     );
+
+    const subtotal = Number((total / 1.18).toFixed(2));
+    const igv = Number((total - subtotal).toFixed(2));
+
+    const comprobante = await createComprobanteDB(client, {
+      orderId: order.id,
+      cliente: usuario.nombre,
+      direccion,
+      metodoPago,
+      subtotal: subtotal.toFixed(2),
+      igv: igv.toFixed(2),
+      total,
+    });
 
     await client.query("COMMIT");
 
-    return order;
+    return {
+      order,
+      comprobante,
+    };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -138,7 +162,7 @@ export const getOrdersByUserDB = async (userId) => {
     WHERE user_id = $1
     ORDER BY id DESC
     `,
-    [userId]
+    [userId],
   );
 
   return result.rows;
@@ -152,7 +176,7 @@ export const updateOrderStatusDB = async (id, estado) => {
     WHERE id = $2
     RETURNING *
     `,
-    [estado, id]
+    [estado, id],
   );
 
   return result.rows[0];
