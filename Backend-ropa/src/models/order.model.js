@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-export const createOrderDB = async (userId, direccion, metodoPago) => {
+export const createOrderDB = async (userId, direccion, metodoPago, lat, lng) => {
   const client = await pool.connect();
 
   try {
@@ -52,21 +52,21 @@ export const createOrderDB = async (userId, direccion, metodoPago) => {
     const orderResult = await client.query(
       `
       INSERT INTO orders
-      (user_id, total)
-      VALUES ($1, $2)
+      (user_id, total, direccion, lat, lng)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [userId, total],
+      [userId, total, direccion, lat ?? null, lng ?? null],
     );
 
     const order = orderResult.rows[0];
 
     const userResult = await client.query(
       `
-  SELECT nombre, email
-  FROM users
-  WHERE id = $1
-  `,
+      SELECT nombre, email
+      FROM users
+      WHERE id = $1
+      `,
       [userId],
     );
 

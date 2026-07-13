@@ -16,20 +16,52 @@ function Checkout() {
     (sum, item) => sum + Number(item.precio) * (item.quantity || 1), 0
   );
 
+  // ✅ Geocodifica la dirección ANTES de crear el pedido, para guardar lat/lng en la orden
+  const geocodificarDireccion = async (texto) => {
+    try {
+      const query = encodeURIComponent(`${texto}, Lima, Perú`);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`,
+        {
+          headers: {
+            "Accept-Language": "es",
+          },
+        },
+      );
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error al geocodificar la dirección:", error);
+      return null;
+    }
+  };
+
   const handlePagar = async (e) => {
     e.preventDefault();
     setProcesando(true);
     try {
+      const coords = await geocodificarDireccion(direccion);
+
       await createOrder({
         direccion,
         metodoPago,
+        lat: coords?.lat ?? null,
+        lng: coords?.lng ?? null,
       });
+
       setTimeout(() => {
         setProcesando(false);
         setTotalPagado(total);
         setExito(true);
         clearCart();
-        setTimeout(() => navigate("/my-orders"), 3000);
+        setTimeout(() => navigate("/my-orders"), 4000);
       }, 2000);
     } catch (error) {
       setProcesando(false);
@@ -50,39 +82,46 @@ function Checkout() {
 
   if (exito)
     return (
-      <Container className="my-5 text-center" style={{ maxWidth: "400px" }}>
-        <div
-          style={{
-            width: "70px",
-            height: "70px",
-            borderRadius: "50%",
-            background: "#d1fae5",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 16px",
-          }}
-        >
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#059669"
-            strokeWidth="2.5"
+      <Container className="my-5" style={{ maxWidth: "700px" }}>
+        <div className="text-center">
+          <div
+            style={{
+              width: "70px",
+              height: "70px",
+              borderRadius: "50%",
+              background: "#d1fae5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+            }}
           >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-        <h3 className="fw-bold">Pedido confirmado</h3>
-        <p className="text-muted">
-          Te avisaremos cuando tu pedido esté en camino.
-        </p>
-        <div className="mt-3 p-3 bg-light rounded">
-          <p className="mb-0 fw-bold">
-            Total pagado: S/. {totalPagado.toFixed(2)}
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#059669"
+              strokeWidth="2.5"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h3 className="fw-bold">Pedido confirmado</h3>
+          <p className="text-muted">
+            Te avisaremos cuando tu pedido esté en camino. Podrás ver la ruta
+            de entrega en la sección "Mis Pedidos".
           </p>
+          <div className="mt-3 p-3 bg-light rounded">
+            <p className="mb-0 fw-bold">
+              Total pagado: S/. {totalPagado.toFixed(2)}
+            </p>
+          </div>
         </div>
+
+        <p className="text-center text-muted mt-3" style={{ fontSize: "13px" }}>
+          Serás redirigido a tus pedidos en unos segundos...
+        </p>
       </Container>
     );
 
