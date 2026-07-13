@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 import { createComprobanteDB } from "./comprobante.model.js";
 
-export const createOrderDB = async (userId, direccion, metodoPago, lat, lng) => {
+export const createOrderDB = async (userId, direccion, metodoPago) => {
   const client = await pool.connect();
 
   try {
@@ -55,21 +55,21 @@ export const createOrderDB = async (userId, direccion, metodoPago, lat, lng) => 
     const orderResult = await client.query(
       `
       INSERT INTO orders
-      (user_id, total, direccion, lat, lng)
-      VALUES ($1, $2, $3, $4, $5)
+      (user_id, total)
+      VALUES ($1, $2)
       RETURNING *
       `,
-      [userId, total, direccion, lat ?? null, lng ?? null],
+      [userId, total],
     );
 
     const order = orderResult.rows[0];
 
     const userResult = await client.query(
       `
-      SELECT nombre, email
-      FROM users
-      WHERE id = $1
-      `,
+  SELECT nombre, email
+  FROM users
+  WHERE id = $1
+  `,
       [userId],
     );
 

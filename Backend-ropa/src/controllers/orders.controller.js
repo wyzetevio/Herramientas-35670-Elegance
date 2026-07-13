@@ -7,9 +7,9 @@ import {
 
 export const createOrder = async (req, res) => {
   try {
-    const { direccion, metodoPago, lat, lng } = req.body;
+    const { direccion, metodoPago } = req.body;
 
-    const order = await createOrderDB(req.user.id, direccion, metodoPago, lat, lng);
+    const order = await createOrderDB(req.user.id, direccion, metodoPago);
 
     res.status(201).json(order);
   } catch (error) {
