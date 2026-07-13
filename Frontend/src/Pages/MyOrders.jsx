@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Table,
@@ -10,74 +10,12 @@ import {
 import { getMyOrders, getComprobante } from "../Services/Api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import "leaflet/dist/leaflet.css";
-import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-
-const STORE_LOCATION = [-12.193764, -76.971500];
-
-function MapaRuta({ lat, lng }) {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-
-  useEffect(() => {
-    if (!lat || !lng || mapInstanceRef.current) return;
-
-    const L = require("leaflet");
-    require("leaflet-routing-machine");
-
-    delete L.Icon.Default.prototype._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-      iconUrl: require("leaflet/dist/images/marker-icon.png"),
-      shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-    });
-
-    const map = L.map(mapRef.current).setView(STORE_LOCATION, 13);
-    mapInstanceRef.current = map;
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-    }).addTo(map);
-
-    L.Routing.control({
-      waypoints: [
-        L.latLng(STORE_LOCATION[0], STORE_LOCATION[1]),
-        L.latLng(lat, lng),
-      ],
-      language: "es",
-      routeWhileDragging: false,
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: true,
-      show: true,
-    }).addTo(map);
-
-    return () => {
-      map.remove();
-      mapInstanceRef.current = null;
-    };
-  }, [lat, lng]);
-
-  return (
-    <div
-      ref={mapRef}
-      style={{
-        height: "350px",
-        width: "100%",
-        borderRadius: "12px",
-      }}
-    />
-  );
-}
 
 function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [comprobante, setComprobante] = useState(null);
-  const [showMapModal, setShowMapModal] = useState(false);
-  const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
-
   useEffect(() => {
     loadOrders();
   }, []);
@@ -107,14 +45,10 @@ function MyOrders() {
     }
   };
 
-  const handleVerUbicacion = (order) => {
-    setOrdenSeleccionada(order);
-    setShowMapModal(true);
-  };
-
   const generarPDF = () => {
     const doc = new jsPDF();
 
+    // Encabezado
     doc.setFillColor(30, 30, 30);
     doc.rect(0, 0, 210, 35, "F");
 
@@ -127,6 +61,7 @@ function MyOrders() {
 
     doc.text("Comprobante de Pago", 105, 25, { align: "center" });
 
+    // Restaurar color texto
     doc.setTextColor(0, 0, 0);
 
     doc.setFontSize(11);
@@ -139,6 +74,7 @@ function MyOrders() {
       60,
     );
 
+    // Caja cliente
     doc.setFillColor(245, 245, 245);
     doc.roundedRect(15, 70, 180, 35, 3, 3, "F");
 
@@ -183,6 +119,7 @@ function MyOrders() {
 
     doc.text(`TOTAL: S/. ${comprobante.total}`, 125, y + 30);
 
+    // Pie
     doc.setFontSize(10);
 
     doc.text("Gracias por comprar en ELEGANCE STORE", 105, 285, {
@@ -225,7 +162,6 @@ function MyOrders() {
             <th>Total</th>
             <th>Estado</th>
             <th>Comprobante</th>
-            <th>Ubicación</th>
           </tr>
         </thead>
         <tbody>
@@ -247,32 +183,10 @@ function MyOrders() {
                   📄 Ver
                 </Button>
               </td>
-
-              <td className="text-center">
-                {order.estado === "entregado" ? (
-                  <span className="text-muted" style={{ fontSize: "13px" }}>
-                    ✅ Entregado
-                  </span>
-                ) : order.lat && order.lng ? (
-                  <Button
-                    size="sm"
-                    variant="outline-success"
-                    onClick={() => handleVerUbicacion(order)}
-                  >
-                    📍 Ver ruta
-                  </Button>
-                ) : (
-                  <span className="text-muted" style={{ fontSize: "13px" }}>
-                    Sin ubicación
-                  </span>
-                )}
-              </td>
             </tr>
           ))}
         </tbody>
       </Table>
-
-      {/* Modal comprobante */}
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -373,26 +287,6 @@ function MyOrders() {
             Cerrar
           </Button>
         </Modal.Footer>
-      </Modal>
-
-      {/* Modal ubicación / ruta de entrega */}
-      <Modal
-        show={showMapModal}
-        onHide={() => setShowMapModal(false)}
-        centered
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Ruta de entrega — Pedido #{ordenSeleccionada?.id}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="mb-2" style={{ fontSize: "14px" }}>
-            📍 {ordenSeleccionada?.direccion}
-          </p>
-          {ordenSeleccionada && (
-            <MapaRuta lat={ordenSeleccionada.lat} lng={ordenSeleccionada.lng} />
-          )}
-        </Modal.Body>
       </Modal>
     </Container>
   );
