@@ -15,8 +15,7 @@ export const registerUser = (data) => API.post("/users/register", data);
 export const loginUser = (data) => API.post("/users/login", data);
 export const getProfile = () => API.get("/users/profile");
 
-export const getProducts = (filters) =>
-  API.get("/products", { params: filters });
+export const getProducts = (filters) => API.get("/products", { params: filters });
 
 export const getCart = (userId) => API.get(`/cart/${userId}`);
 
@@ -47,11 +46,9 @@ export const deleteUser = (id) => API.delete(`/users/${id}`);
 
 // PEDIDOS
 
-export const createOrder = (data) => API.post("/orders", data);
+export const createOrder = () => API.post("/orders");
 
 export const getMyOrders = () => API.get("/orders/my-orders");
-
-export const getComprobante = (orderId) => API.get(`/comprobantes/${orderId}`);
 
 export const getAllOrders = () => API.get("/orders");
 
