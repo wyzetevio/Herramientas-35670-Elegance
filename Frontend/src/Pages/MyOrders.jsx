@@ -131,23 +131,29 @@ function MyOrders() {
 
   const getVariant = (estado) => {
     switch (estado) {
-      case "pendiente": return "warning";
-      case "procesando": return "info";
-      case "enviado": return "primary";
-      case "entregado": return "success";
-      default: return "secondary";
+      case "pendiente":
+        return "warning";
+      case "procesando":
+        return "info";
+      case "enviado":
+        return "primary";
+      case "entregado":
+        return "success";
+      default:
+        return "secondary";
     }
   };
 
-  if (loading) return (
-    <Container className="mt-5 text-center">
-      <Spinner animation="border" />
-    </Container>
-  );
+  if (loading)
+    return (
+      <Container className="mt-5 text-center">
+        <Spinner animation="border" />
+      </Container>
+    );
 
   return (
     <Container className="mt-4">
-      <h2>Mis Pedidos</h2>
+      <h2 className="fw-bold mb-4">Mis Pedidos</h2>
       <Table striped bordered hover>
         <thead>
           <tr>
